@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     View, Text, StyleSheet, TextInput,TouchableOpacity
 } from 'react-native';
+import firebase from 'firebase';
 
 import Button from '../components/Button';
 
@@ -9,6 +10,22 @@ export default function SignUpScreen(props){
     const { navigation } = props;
     const [email, setEmail] = useState(''); //useStateの中身は初期値
     const [password, setPassword] = useState('');
+
+    function handlePress(){
+        firebase.auth().createUserWithEmailAndPassword(email, password)//認証でメアドとパスを渡す
+        .then((userCredential) => { //認証したあとの動き
+            const { user } = userCredential;// userCredentialからuserを抽出する。
+            console.log(user.uid);
+            navigation.reset({
+                index: 0,
+                routes: [{name: 'MemoList'}],
+            });
+        })
+        .catch((error) =>{ //エラーの対応を行う。アプリのクラッシュを防ぐ
+            console.log(error.code, error.message);
+        });
+
+    }
 
     return (
         <View style={styles.container}>
@@ -21,23 +38,20 @@ export default function SignUpScreen(props){
                     autoCapitalize='none'
                     keyboardType='email-address'
                     placeholder='Email Address'
+                    textContentType='emailAddress'
                 />
                 <TextInput
                     style={styles.input}
                     value={password}
                     onChangeText={(text) => { setPassword(text); }}
-                    autoCapitalize='none'
-                    placeholder='Password'
-                    secureTextEntry
+                    autoCapitalize='none'//文頭の文字を小文字にする
+                    placeholder='Password'//プレースホルダーの設置
+                    secureTextEntry//パスワードが伏字になる。
+                    textContentType='password'//キーチェーンからパスワードを拾ってくれるようになる。
                 />
                 <Button
                     label = 'Submit'
-                    onPress = {() => {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{name: 'MemoList'}],
-                        })
-                    }}
+                    onPress = {handlePress}
                 />
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Already registered?</Text>
