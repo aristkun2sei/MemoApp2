@@ -3,9 +3,14 @@ import {View, StyleSheet } from 'react-native';
 
 import MemoList from '../components/MemoList';
 import CircleButton from '../components/CircleButton';
+import LogOutButton from '../components/LogOutButton';
 
 export default function MemoListScreen(props){
     const { navigation } = props;
+    navigation.setOptions({// ナビゲーションにログアウトボタンを設置する
+        headerRight: ()=> <LogOutButton /> //componentを直接定義するための関数が必要。
+    });
+
     return(
         <View style={styles.container}>
             <MemoList />
