@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TextInput, TouchableOpacity, Alert
 } from 'react-native';
@@ -11,6 +11,18 @@ export default function LogInScreen(props){
     const [email, setEmail] = useState(''); //useStateの中身は初期値
     const [password, setPassword] = useState('');
 
+    useEffect(() =>{ //この画面が表示されたときに実行するファイル（renderingの度に実行されてしまう）
+        const unsubscribe = firebase.auth().onAuthStateChanged((user) =>{
+            if(user){
+                navigation.reset({
+                    index: 0,
+                    routes: [{name: 'MemoList'}],
+                });
+            }
+        });
+        return unsubscribe; //関数を返すことで、ログインスクリーンが消える瞬間に、この処理をおこなってくれる。
+    }, []);// 空の配列を入れておくことで、画面が表示された一回のみ反映されるようになる。
+
     function handlePress(){
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) =>{
@@ -19,14 +31,12 @@ export default function LogInScreen(props){
 
                 navigation.reset({
                     index: 0,
-                    routes: [{name: 'SignUp'}],
+                    routes: [{name: 'MemoList'}],
                 });
             })
             .catch((error) =>{
                 Alert.alert(error.code);
             });
-
-
     }
 
     return (
@@ -53,17 +63,17 @@ export default function LogInScreen(props){
                 />
                 <Button
                     label = 'Submit'
-                    onPress =  {() => {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{name: 'MemoList'}],//routeの中身で上書きするようにするという指示。indexは、stackの番号
-                        });
-                    }}
+                    onPress =  {handlePress}
                 />
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Not registered?</Text>
                     <TouchableOpacity
-                        onPress = {handlePress}
+                        onPress =  {() => {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{name: 'SignUp'}],//routeの中身で上書きするようにするという指示。indexは、stackの番号
+                            });
+                        }}
                     >
                         <Text style={styles.footerLink}>Sign up here!</Text>
                     </TouchableOpacity>

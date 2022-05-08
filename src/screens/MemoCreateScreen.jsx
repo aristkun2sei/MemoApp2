@@ -1,20 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    View, Text, StyleSheet, TextInput, KeyboardAvoidingView,
+    View, StyleSheet, TextInput, KeyboardAvoidingView,
 }from 'react-native';
 
 import CircleButton from '../components/CircleButton';
 
+import firebase from 'firebase';
+
 export default function MemoCreateScreen(props){
     const { navigation } = props;
+    const [bodyText, setBodyText] = useState('');
+
+    function handlePress(){
+        const { currentUser } = firebase.auth();
+        const db = firebase.firestore();
+        const ref = db.collection(`users/${currentUser.uid}/memos`); //referenceの設定、データを保存するコレクションの名前を決めている。
+        ref.add({ //documentを追加するための関数
+            bodyText,
+        })
+            .then((docRef)=>{ //作成されたドキュメントの参照
+                console.log('Created!', docRef.id);
+                navigation.goBack();
+            })
+            .catch((error) =>{
+                console.log('Error!', error);
+            });
+    }
+
     return(
         <KeyboardAvoidingView style={styles.container} behavior = 'height' >
             <View style={styles.inputContainer}>
-                <TextInput  value = '' multiline style={styles.input} />
+                <TextInput
+                    value = {bodyText}
+                    multiline
+                    style={styles.input}
+                    onChangeText ={(text) => { setBodyText(text); }}//入力されるごとにsetBodyTextが実行される。
+                />
             </View>
             <CircleButton
                 name='check'
-                onPress = {() => { navigation.goBack(); }}
+                onPress = {handlePress}
             />
         </KeyboardAvoidingView>
     );
