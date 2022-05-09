@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     View, StyleSheet, TextInput, KeyboardAvoidingView,
 }from 'react-native';
+import KeyboardSafeView from '../components/KeyboardSafeView';
 
 import CircleButton from '../components/CircleButton';
 
@@ -17,9 +18,10 @@ export default function MemoCreateScreen(props){
         const ref = db.collection(`users/${currentUser.uid}/memos`); //referenceの設定、データを保存するコレクションの名前を決めている。
         ref.add({ //documentを追加するための関数
             bodyText,
+            updatedAt: new Date(),
         })
             .then((docRef)=>{ //作成されたドキュメントの参照
-                console.log('Created!', docRef.id);
+                console.log('Created!', docRef.id );
                 navigation.goBack();
             })
             .catch((error) =>{
@@ -28,20 +30,21 @@ export default function MemoCreateScreen(props){
     }
 
     return(
-        <KeyboardAvoidingView style={styles.container} behavior = 'height' >
+        <KeyboardSafeView style={styles.container} behavior = 'height' >
             <View style={styles.inputContainer}>
                 <TextInput
                     value = {bodyText}
                     multiline
                     style={styles.input}
                     onChangeText ={(text) => { setBodyText(text); }}//入力されるごとにsetBodyTextが実行される。
+                    autoFocus//ページに遷移した瞬間にキーボードが立ち上がって、入力できる状態になる。
                 />
             </View>
             <CircleButton
                 name='check'
                 onPress = {handlePress}
             />
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
     );
 }
 
