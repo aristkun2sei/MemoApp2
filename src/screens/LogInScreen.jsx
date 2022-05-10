@@ -5,11 +5,13 @@ import {
 import firebase from 'firebase';
 
 import Button from '../components/Button';
+import Loading from '../components/Loading';
 
 export default function LogInScreen(props){
     const { navigation } = props;
     const [email, setEmail] = useState(''); //useStateの中身は初期値
     const [password, setPassword] = useState('');
+    const [isLoading, setLoading] = useState(true); //最初にLoadしている判定の方がよい。（ログイン状態の監視がある）
 
     useEffect(() =>{ //この画面が表示されたときに実行するファイル（renderingの度に実行されてしまう）
         const unsubscribe = firebase.auth().onAuthStateChanged((user) =>{
@@ -18,12 +20,15 @@ export default function LogInScreen(props){
                     index: 0,
                     routes: [{name: 'MemoList'}],
                 });
+            }else{
+                setLoading(false);
             }
         });
         return unsubscribe; //関数を返すことで、ログインスクリーンが消える瞬間に、この処理をおこなってくれる。
     }, []);// 空の配列を入れておくことで、画面が表示された一回のみ反映されるようになる。
 
     function handlePress(){
+        setLoading(true);
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) =>{
                 const { user } = userCredential;
@@ -36,11 +41,15 @@ export default function LogInScreen(props){
             })
             .catch((error) =>{
                 Alert.alert(error.code);
+            })
+            .then(()=>{
+                setLoading(false);
             });
     }
 
     return (
         <View style={styles.container}>
+            <Loading isloading={isLoading} />
             <View style={styles.inner}>
                 <Text style={styles.title}>Log In</Text>
                 <TextInput

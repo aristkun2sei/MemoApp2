@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    View, Text, StyleSheet, TextInput,TouchableOpacity
+    View, Text, StyleSheet, TextInput,TouchableOpacity, Alert,
 } from 'react-native';
 import firebase from 'firebase';
 
@@ -16,13 +16,16 @@ export default function SignUpScreen(props){
         .then((userCredential) => { //認証したあとの動き
             const { user } = userCredential;// userCredentialからuserを抽出する。
             console.log(user.uid);
-            navigation.reset({
+
+            navigation.reset({ //ここに設置することで、成功したときだけナビゲーションを発動させる。
                 index: 0,
                 routes: [{name: 'MemoList'}],
             });
         })
         .catch((error) =>{ //エラーの対応を行う。アプリのクラッシュを防ぐ
             console.log(error.code, error.message);
+            Alert.alert(error.code);
+
         });
 
     }
