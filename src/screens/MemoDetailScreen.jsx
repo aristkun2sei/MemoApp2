@@ -10,11 +10,11 @@ import { dateToString } from '../utils';
 
 export default function MemoDetailScreen(props){
     const { navigation, route } = props;
-    const { id } = route.params;// routeのなかに、paramsというのがある。
+    const { id } = route.params;// routeのなかに、paramsというのがある。idをMemoList→detail→editと渡していく
     console.log(id);
     const [memo, setMemo] = useState(null);
 
-    useEffect(() =>{
+    useEffect(() =>{// 表示された瞬間に、DBからデータを取得している。
         const { currentUser } =firebase.auth();
         let unsubscribe = () =>{};//空の変数を定義する。
         if (currentUser){
@@ -46,7 +46,7 @@ export default function MemoDetailScreen(props){
             </ScrollView>
             <CircleButton
             style={{ top: 60, bottom: 'auto' }} name = 'edit-2'
-            onPress={()=>{navigation.navigate('MemoEdit'); }}
+            onPress={()=>{navigation.navigate('MemoEdit', { id: memo.id, bodyText: memo.bodyText }); }}
             />
 
         </View>
